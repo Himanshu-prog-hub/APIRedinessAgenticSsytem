@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Specification Upload Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* Sabre Logo Styles */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .sabre-logo {
+            max-width: 150px;
+            height: auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #444;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .file-input-label.has-file {
+            border-color: #48bb78;
+            border-style: solid;
+            background: #f0fff4;
+        }
+
+        .file-name {
+            color: #666;
+            font-size: 14px;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-name.selected {
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .file-icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.success {
+            background: #f0fff4;
+            color: #22543d;
+            border: 1px solid #48bb78;
+            display: block;
+        }
+
+        .message.error {
+            background: #fff5f5;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+            display: block;
+        }
+
+        .message.info {
+            background: #ebf8ff;
+            color: #2c5282;
+            border: 1px solid #4299e1;
+            display: block;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .required {
+            color: #e53e3e;
+            margin-left: 4px;
+        }
+
+        /* PDF Report Section Styles */
+        .pdf-report-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff4f5e 0%, #f5576c 100%);
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.3);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pdf-report-section.show {
+            display: block;
+        }
+
+        .pdf-report-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .pdf-report-header h3 {
+            color: white;
+            font-size: 18px;
+            margin: 0;
+            flex: 1;
+        }
+
+        .pdf-icon {
+            font-size: 32px;
+            margin-right: 12px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .copy-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .upload-another-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-another-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Mode Selector Styles */
+        .mode-btn {
+            flex: 1;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        /* GitHub Input Styles */
+        .text-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            background: white;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .text-input:focus {
+            border-color: #667eea;
+        }
+
+        .text-input::placeholder {
+            color: #999;
+        }
+
+        .helper-text {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sabre Logo -->
+        <div class="logo-container">
+            
+            <div class="logo-container">
+                <img src="assets/sabre-logo.png" alt="Sabre Logo" class="sabre-logo">
+            </div>
+        </div>
+
+        <h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;API Agentic Assessment</h1>
+        <p class="subtitle">Upload your API specification (YAML/JSON) for AI-readiness evaluation</p>
+
+        <!-- Input Mode Selector -->
+        <div class="input-mode-selector" style="margin-bottom: 25px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button type="button" class="mode-btn active" id="uploadModeBtn" onclick="switchMode('upload')">
+                    📁 Upload Files
+                </button>
+                <button type="button" class="mode-btn" id="githubModeBtn" onclick="switchMode('github')">
+                    🔗 GitHub Repository
+                </button>
+            </div>
+        </div>
+
+        <form id="uploadForm">
+            <!-- GitHub Input Section (Hidden by default) -->
+            <div id="githubSection" style="display: none;">
+                <div class="form-group">
+                    <label for="githubUrl">
+                        GitHub Repository URL
+                        <span class="required">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="githubUrl"
+                        class="text-input"
+                        placeholder="https://github.com/username/repository"
+                    >
+                    <p class="helper-text">💡 Example: https://github.com/sabre/api-specs</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="yamlPath">
+                        Path to YAML Spec File
+                        <span class="required">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="yamlPath"
+                        class="text-input"
+                        placeholder="e.g., spec-file.yaml or api/openapi.yaml"
+                    >
+                    <p class="helper-text">💡 Relative path from repository root</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="promptsPath">
+                        Path to Prompts File <span style="color: #999; font-weight: normal;">(Optional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="promptsPath"
+                        class="text-input"
+                        placeholder="e.g., prompts.txt or examples/prompts.txt"
+                    >
+                    <p class="helper-text">💡 Leave empty if you don't have sample prompts</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="branchName">
+                        Branch Name <span style="color: #999; font-weight: normal;">(Optional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="branchName"
+                        class="text-input"
+                        placeholder="main"
+                        value="main"
+                    >
+                    <p class="helper-text">💡 Default: main (will try master if main doesn't exist)</p>
+                </div>
+            </div>
+
+            <!-- File Upload Section (Visible by default) -->
+            <div id="uploadSection">
+            <div class="form-group">
+                <label for="apiSpec">
+                    API Specification
+                    <span class="required">*</span>
+                </label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="apiSpec" name="apiSpec" accept=".json,.yaml,.yml,.txt,.md" required>
+                    <label for="apiSpec" class="file-input-label" id="apiSpecLabel">
+                        <span class="file-name">
+                            <span class="file-icon">📋</span>
+                            Choose API specification file...
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="supportingDocs">
+                    Sample Natural Language Prompts <span style="color: #999; font-weight: normal; font-size: 12px;">(Optional - for Promptability testing)</span>
+                </label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="supportingDocs" name="supportingDocuments" accept=".txt,.md">
+                    <label for="supportingDocs" class="file-input-label" id="supportingDocsLabel">
+                        <span class="file-name">
+                            <span class="file-icon">📎</span>
+                            Choose document (Optional)...
+                        </span>
+                    </label>
+                </div>
+                <p class="helper-text">💡 The API spec alone is sufficient for evaluation. Add this file only if you want to test how well LLMs can convert your example prompts into API requests.</p>
+            </div>
+            </div> <!-- Close uploadSection -->
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <div class="btn-content">
+                    <span id="btnText">Upload and Submit</span>
+                    <div class="loading-spinner" id="loadingSpinner"></div>
+                </div>
+            </button>
+        </form>
+
+        <div id="message" class="message"></div>
+
+        <!-- PDF Report Section (Hidden by default) -->
+        <div id="pdfReportSection" class="pdf-report-section">
+            <div class="pdf-report-header">
+                <span class="pdf-icon">📊</span>
+                <h3>API Assessment Results</h3>
+            </div>
+            <div class="results-wrapper">
+            </div>
+        </div>
+
+        <button id="uploadAnotherBtn" class="upload-another-btn" style="display: none;">
+            📤 Upload Another Document
+        </button>
+    </div>
+
+    <script>
+        let currentMode = 'upload'; // 'upload' or 'github'
+
+        const form = document.getElementById('uploadForm');
+        const apiSpecInput = document.getElementById('apiSpec');
+        const supportingDocsInput = document.getElementById('supportingDocs');
+        const apiSpecLabel = document.getElementById('apiSpecLabel');
+        const supportingDocsLabel = document.getElementById('supportingDocsLabel');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const messageDiv = document.getElementById('message');
+        const pdfReportSection = document.getElementById('pdfReportSection');
+        const uploadAnotherBtn = document.getElementById('uploadAnotherBtn');
+
+        const API_ENDPOINT = 'http://localhost:8080';
+
+        // Cache latest results for download actions
+        window.latestAgentResults = null;
+        window.latestAgentSummary = null;
+        window.latestAgentRawText = '';
+        window.latestReportTitle = '';
+
+        // Mode switching function
+        function switchMode(mode) {
+            currentMode = mode;
+
+            const uploadSection = document.getElementById('uploadSection');
+            const githubSection = document.getElementById('githubSection');
+            const uploadModeBtn = document.getElementById('uploadModeBtn');
+            const githubModeBtn = document.getElementById('githubModeBtn');
+
+            if (mode === 'upload') {
+                uploadSection.style.display = 'block';
+                githubSection.style.display = 'none';
+                uploadModeBtn.classList.add('active');
+                githubModeBtn.classList.remove('active');
+                btnText.textContent = 'Upload and Submit';
+                // Make file input required in upload mode
+                apiSpecInput.setAttribute('required', 'required');
+            } else {
+                uploadSection.style.display = 'none';
+                githubSection.style.display = 'block';
+                uploadModeBtn.classList.remove('active');
+                githubModeBtn.classList.add('active');
+                btnText.textContent = 'Fetch and Evaluate';
+                // Remove required attribute in GitHub mode
+                apiSpecInput.removeAttribute('required');
+            }
+
+            hideMessage();
+        }
+
+        // Update file input labels when files are selected
+        apiSpecInput.addEventListener('change', function(e) {
+            updateFileLabel(e.target, apiSpecLabel, '📋');
+        });
+
+        supportingDocsInput.addEventListener('change', function(e) {
+            updateFileLabel(e.target, supportingDocsLabel, '📎');
+        });
+
+        function updateFileLabel(input, label, icon) {
+            const fileName = input.files[0]?.name || 'No file chosen';
+            const fileNameSpan = label.querySelector('.file-name');
+            
+            if (input.files[0]) {
+                fileNameSpan.innerHTML = `<span class="file-icon">${icon}</span>${fileName}`;
+                fileNameSpan.classList.add('selected');
+                label.classList.add('has-file');
+            } else {
+                fileNameSpan.innerHTML = `<span class="file-icon">${icon}</span>Choose file...`;
+                fileNameSpan.classList.remove('selected');
+                label.classList.remove('has-file');
+            }
+        }
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+        }
+
+        function hideMessage() {
+            messageDiv.style.display = 'none';
+        }
+
+        function setLoading(isLoading) {
+            submitBtn.disabled = isLoading;
+            if (isLoading) {
+                btnText.textContent = 'Processing...';
+                loadingSpinner.style.display = 'block';
+            } else {
+                // Restore correct button text based on mode
+                btnText.textContent = currentMode === 'upload' ? 'Upload and Submit' : 'Fetch and Evaluate';
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        function showAgentResponse(agentResponse, fileName) {
+            const structuredItems = Array.isArray(agentResponse.results) ? agentResponse.results : [];
+            const fullResponseText = agentResponse.raw_response || JSON.stringify(structuredItems, null, 2);
+            const summary = agentResponse.summary || {};
+            const scoreBreakdown = Array.isArray(summary.score_breakdown) ? summary.score_breakdown : [];
+            const escapeHTML = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[character]));
+
+            window.latestAgentResults = structuredItems;
+            window.latestAgentSummary = summary;
+            window.latestAgentRawText = fullResponseText;
+            window.latestReportTitle = fileName || 'API Spec';
+
+            // Update the header
+            const pdfHeader = pdfReportSection.querySelector('.pdf-report-header h3');
+            pdfHeader.textContent = 'API Agentic Readiness Evaluation';
+
+            // Hide original input and button
+            // Create or get the results container
+            let resultsContainer = document.getElementById('resultsContainer');
+            if (!resultsContainer) {
+                resultsContainer = document.createElement('div');
+                resultsContainer.id = 'resultsContainer';
+                resultsContainer.style.cssText = `
+                    width: 100%;
+                    max-height: 500px;
+                    overflow-y: auto;
+                    padding: 20px;
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                `;
+                pdfReportSection.querySelector('.results-wrapper').appendChild(resultsContainer);
+            }
+
+            // Display filtered structured response for UI
+            let htmlContent = '';
+
+            if (structuredItems.length > 0) {
+                htmlContent += `
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="color: #333; font-size: 20px; margin-bottom: 10px; border-bottom: 2px solid #667eea; padding-bottom: 6px;">
+                            📊 Evaluation Summary
+                        </h2>
+                        <p style="font-size: 16px; color: #444;">
+                            Overall score: <strong>${escapeHTML(summary.final_score ?? 'N/A')} / 10</strong>
+                            · Tier: <strong>${escapeHTML(summary.tier ?? 'N/A')}</strong>
+                            ${escapeHTML(summary.tier_description ?? '')}
+                        </p>
+                    </div>
+                `;
+                if (scoreBreakdown.length > 0) {
+                    htmlContent += `
+                        <ul style="margin: 0 0 20px; color: #555; line-height: 1.6;">
+                            ${scoreBreakdown.map((item) => `
+                                <li>${escapeHTML(item.label)}: ${escapeHTML(item.score)} / 10 × ${Math.round(Number(item.weight) * 100)}% weight</li>
+                            `).join('')}
+                        </ul>
+                    `;
+                }
+
+                structuredItems.forEach((item, index) => {
+                    const itemType = item?.type || `Assessment ${index + 1}`;
+                    const itemScore = item?.score ?? 'N/A';
+                    const analysis = item?.analysis || {};
+                    const recommendations = item?.recommendations || [];
+
+                    htmlContent += `
+                        <div style="margin-bottom: 20px; padding: 12px; background: #f8f9fa; border-left: 4px solid #667eea; border-radius: 6px;">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                <div style="font-weight: 700; color: #333; font-size: 16px;">${escapeHTML(itemType)}</div>
+                                <div style="font-weight: 700; color: #48bb78;">Score: ${escapeHTML(itemScore)} / 10</div>
+                            </div>
+                        </div>
+                    `;
+
+                    if (analysis && typeof analysis === 'object') {
+                        htmlContent += `
+                            <div style="margin-bottom: 16px;">
+                                <h3 style="color: #333; font-size: 16px; margin-bottom: 8px;">🔍 Analysis</h3>
+                        `;
+
+                        Object.entries(analysis).forEach(([key, value]) => {
+                            const title = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                            htmlContent += `
+                                <div style="margin-bottom: 10px; padding: 10px; background: #ffffff; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                    <div style="font-weight: 600; color: #444; margin-bottom: 4px;">${escapeHTML(title)}</div>
+                                    <div style="color: #666; line-height: 1.6; font-size: 14px;">${escapeHTML(value)}</div>
+                                </div>
+                            `;
+                        });
+                        htmlContent += `</div>`;
+                    }
+
+                    if (Array.isArray(recommendations) && recommendations.length > 0) {
+                        htmlContent += `
+                            <div style="margin-bottom: 20px;">
+                                <h3 style="color: #333; font-size: 16px; margin-bottom: 8px;">💡 Recommendations</h3>
+                                <ol style="margin: 0; padding-left: 20px;">
+                        `;
+                        recommendations.forEach((rec) => {
+                            htmlContent += `
+                                <li style="margin-bottom: 8px; color: #555; line-height: 1.6; font-size: 14px;">${escapeHTML(rec)}</li>
+                            `;
+                        });
+                        htmlContent += `</ol></div>`;
+                    }
+                });
+            } else {
+                htmlContent = `
+                    <div style="white-space: pre-wrap; font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #333;">
+                        ${escapeHTML(fullResponseText || 'No evaluation results available')}
+                    </div>
+                `;
+            }
+
+            resultsContainer.innerHTML = htmlContent;
+            resultsContainer.style.display = 'block';
+
+            // Add download and copy buttons
+            let actionButtonsContainer = document.getElementById('actionButtonsContainer');
+            if (!actionButtonsContainer) {
+                actionButtonsContainer = document.createElement('div');
+                actionButtonsContainer.id = 'actionButtonsContainer';
+                actionButtonsContainer.style.cssText = 'margin-top: 15px; display: flex; gap: 10px;';
+                pdfReportSection.appendChild(actionButtonsContainer);
+            }
+            actionButtonsContainer.style.display = 'flex';
+
+            let copyResponseBtn = document.getElementById('copyResponseBtn');
+            if (!copyResponseBtn) {
+                // Copy button
+                copyResponseBtn = document.createElement('button');
+                copyResponseBtn.id = 'copyResponseBtn';
+                copyResponseBtn.className = 'copy-btn';
+                copyResponseBtn.textContent = '📋 Copy Full Response';
+                copyResponseBtn.style.cssText = 'flex: 1; padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; position: static; transform: none;';
+                copyResponseBtn.addEventListener('click', async function() {
+                    try {
+                        await navigator.clipboard.writeText(fullResponseText);
+                        const originalText = copyResponseBtn.textContent;
+                        copyResponseBtn.textContent = '✓ Copied!';
+                        setTimeout(() => {
+                            copyResponseBtn.textContent = originalText;
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy:', err);
+                        showMessage('Failed to copy to clipboard', 'error');
+                    }
+                });
+                actionButtonsContainer.appendChild(copyResponseBtn);
+            }
+            copyResponseBtn.style.display = 'inline-block';
+
+            let downloadPdfBtn = document.getElementById('downloadPdfBtn');
+            if (!downloadPdfBtn) {
+                // PDF download button
+                downloadPdfBtn = document.createElement('button');
+                downloadPdfBtn.id = 'downloadPdfBtn';
+                downloadPdfBtn.className = 'copy-btn';
+                downloadPdfBtn.textContent = '⬇️ Download PDF';
+                downloadPdfBtn.style.cssText = 'flex: 1; padding: 10px; background: #48bb78; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; position: static; transform: none;';
+                downloadPdfBtn.addEventListener('click', async function() {
+                    try {
+                        const payload = {
+                            title: window.latestReportTitle || 'API Agentic Readiness Report',
+                            results: window.latestAgentResults || [],
+                            summary: window.latestAgentSummary || {}
+                        };
+                        const response = await fetch(`${API_ENDPOINT}/generate-pdf`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        if (!response.ok) {
+                            throw new Error('Failed to generate PDF');
+                        }
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = 'agentic-readiness-report.pdf';
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        URL.revokeObjectURL(url);
+                    } catch (err) {
+                        console.error('Failed to download PDF:', err);
+                        showMessage('Failed to download PDF', 'error');
+                    }
+                });
+                actionButtonsContainer.appendChild(downloadPdfBtn);
+            }
+            downloadPdfBtn.style.display = 'inline-block';
+
+            pdfReportSection.classList.add('show');
+            uploadAnotherBtn.style.display = 'block';
+            form.style.display = 'none';
+        }
+
+        function hidePdfReport() {
+            pdfReportSection.classList.remove('show');
+            uploadAnotherBtn.style.display = 'none';
+
+            // Hide and clean up results container
+            const resultsContainer = document.getElementById('resultsContainer');
+            if (resultsContainer) {
+                resultsContainer.style.display = 'none';
+                resultsContainer.innerHTML = '';
+            }
+
+            // Hide action buttons
+            const actionButtonsContainer = document.getElementById('actionButtonsContainer');
+            if (actionButtonsContainer) {
+                actionButtonsContainer.style.display = 'none';
+            }
+
+            const copyResponseBtn = document.getElementById('copyResponseBtn');
+            if (copyResponseBtn) {
+                copyResponseBtn.style.display = 'none';
+            }
+        }
+
+        // Upload another document
+        uploadAnotherBtn.addEventListener('click', function() {
+            form.reset();
+            updateFileLabel(apiSpecInput, apiSpecLabel, '📋');
+            updateFileLabel(supportingDocsInput, supportingDocsLabel, '📎');
+            hidePdfReport();
+            hideMessage();
+            form.style.display = 'block';
+        });
+
+        // Form submission handler
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Form submitted, current mode:', currentMode);
+            hideMessage();
+            setLoading(true);
+
+            try {
+                let response;
+                let endpoint;
+
+                if (currentMode === 'upload') {
+                    // Validate files
+                    if (!apiSpecInput.files[0]) {
+                        showMessage('Please select an API specification file', 'error');
+                        setLoading(false);
+                        return;
+                    }
+
+                    // Create FormData object
+                    const formData = new FormData();
+                    formData.append('apiSpecification', apiSpecInput.files[0]);
+                    if (supportingDocsInput.files[0]) {
+                        formData.append('supportingDocuments', supportingDocsInput.files[0]);
+                    }
+
+                    console.log('Uploading files to server...');
+                    endpoint = `${API_ENDPOINT}/upload`;
+
+                    // Upload files to the API endpoint
+                    response = await fetch(endpoint, {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else if (currentMode === 'github') {
+                    // GitHub mode
+                    const githubUrl = document.getElementById('githubUrl').value.trim();
+                    const yamlPath = document.getElementById('yamlPath').value.trim();
+                    const promptsPath = document.getElementById('promptsPath').value.trim();
+                    const branchName = document.getElementById('branchName').value.trim() || 'main';
+
+                    console.log('GitHub mode - gathering inputs...');
+                    console.log('GitHub URL:', githubUrl);
+                    console.log('YAML Path:', yamlPath);
+                    console.log('Prompts Path:', promptsPath);
+                    console.log('Branch:', branchName);
+
+                    if (!githubUrl || !yamlPath) {
+                        showMessage('Please provide GitHub URL and YAML file path', 'error');
+                        setLoading(false);
+                        return;
+                    }
+
+                    console.log('Fetching from GitHub:', githubUrl);
+                    endpoint = `${API_ENDPOINT}/upload-from-github`;
+                    console.log('Endpoint:', endpoint);
+
+                    const requestBody = {
+                        githubUrl: githubUrl,
+                        yamlPath: yamlPath,
+                        promptsPath: promptsPath || null,
+                        branch: branchName
+                    };
+                    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+                    response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                } else {
+                    console.error('Unknown mode:', currentMode);
+                    showMessage('Invalid mode selected', 'error');
+                    setLoading(false);
+                    return;
+                }
+
+                console.log('Response received:', response.status);
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Result received:', result);
+                    showMessage('Evaluation completed successfully! ✓', 'success');
+
+                    // Display agent response
+                    if (result.agentResponse) {
+                        setTimeout(() => {
+                            showAgentResponse(result.agentResponse, result.fileName || 'API Spec');
+                        }, 1000);
+                    } else {
+                        showMessage('Evaluation completed but no response received', 'warning');
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    showMessage(
+                        `${currentMode === 'upload' ? 'Upload' : 'GitHub fetch'} failed: ${errorData.message || errorData.error || response.statusText}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error:', error);
+
+                let errorMessage = currentMode === 'upload' ? 'Error uploading files: ' : 'Error fetching from GitHub: ';
+                if (error.name === 'AbortError') {
+                    errorMessage += 'Request timeout. Processing is taking longer than expected.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage += 'Cannot connect to server. Please ensure the Flask server is running on port 8080.';
+                } else {
+                    errorMessage += error.message;
+                }
+
+                showMessage(errorMessage, 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>

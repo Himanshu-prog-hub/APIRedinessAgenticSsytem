@@ -1,0 +1,314 @@
+openapi: 3.0.1
+info:
+  title: Sponsored Property API
+  description: This API will allow to create, update the sponsored properties in Sabre system. It also allows to fetch sponsored properties from Sabre system.
+  version: "1.0"
+x-lingo-api-type: rpc
+tags:
+  - name: Sponsored Property
+    description: Create,update and read for sponsored property.
+servers:
+  - url: https://{environment}.sabre.com/{basePath}
+    variables:
+      environment:
+        default: 'api.cert.platform'
+        enum:
+          - 'api.cert.platform'
+          - 'api.platform'
+      basePath:
+        default: v1/hotels
+security:
+  - oauth2_authentication:
+      []
+paths:
+  /createSponsoredProperties:
+    post:
+      operationId: createSponsoredProperty
+      description: Create the details of sponsored property in CSL.
+      tags:
+        - Sponsored Property
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSponsoredPropertyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful create of a sponsored properties, if no errors are
+            encountered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSponsoredPropertyResponse'
+  /updateSponsoredProperties:
+    post:
+      operationId: updateSponsoredProperty
+      description: Update the details of sponsored property in CSL.
+      tags:
+        - Sponsored Property
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSponsoredPropertyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful update of a sponsored properties, if no errors are
+            encountered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSponsoredPropertyResponse'
+  /getSponsoredProperties:
+    post:
+      operationId: getSponsoredProperty
+      description: Get the details of sponsored property in CSL.
+      tags:
+        - Sponsored Property
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetSponsoredPropertyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful read of a sponsored properties, if no errors are
+            encountered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSponsoredPropertyResponse'
+components:
+  schemas:
+    CreateSponsoredPropertyRequest:
+      type: object
+      required:
+        - sponsoredProperties
+      properties:
+        sponsoredProperties:
+          type: array
+          description: The request object for the sponsored property operation.
+          items:
+            $ref: '#/components/schemas/SponsoredProperty'
+    CreateSponsoredPropertyResponse:
+      type: object
+      required:
+        - timestamp
+        - request
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: '2024-09-18T11:11:21.125Z'
+          description: Provides the exact point in time, expressed in UTC, when the
+            response was generated.
+        request:
+          $ref: '#/components/schemas/CreateSponsoredPropertyRequest'
+          description: Contains a copy of the request body.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+          description: Lists errors, which occurred during processing the request.
+      description: The response object for the updateHotelPreferenceProgram operation.
+    UpdateSponsoredPropertyRequest:
+      type: object
+      required:
+        - sponsoredProperties
+      properties:
+        sponsoredProperties:
+          type: array
+          description: The update object for sponsored property.
+          items:
+            $ref: '#/components/schemas/UpdatedSponsoredPropRequest'
+
+    UpdatedSponsoredPropRequest:
+      type: object
+      description: The update object for sponsored property.
+      allOf:
+        - type: object
+          properties:
+            updatedSubscriptionDate:
+              $ref: '#/components/schemas/SubscriptionDate'
+        - $ref: '#/components/schemas/SponsoredProperty'
+
+    UpdateSponsoredPropertyResponse:
+      type: object
+      required:
+        - timestamp
+        - request
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: '2024-09-18T11:11:21.125Z'
+          description: Provides the exact point in time, expressed in UTC, when the
+            response was generated.
+        request:
+          $ref: '#/components/schemas/UpdateSponsoredPropertyRequest'
+          description: Contains a copy of the request body.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+          description: Lists errors, which occurred during processing the request.
+      description: The response object for the updateHotelPreferenceProgram operation.
+    GetSponsoredPropertyRequest:
+      type: object
+      properties:
+        context:
+          $ref: '#/components/schemas/CodeContext'
+          description: The context of the hotel.Context could be either Sabre or Global based on code provided.
+        code:
+          type: string
+          example: '123456'
+          description: The hotel code to be sponsored.
+        startIndex:
+          type: integer
+          example: 1
+          description: Properties can be retrieved in batches. Start Index of the properties to be retrieved.
+        endIndex:
+          type: integer
+          example: 1
+          description: Properties can be retrieved in batches. Start Index of the properties to be retrieved.
+    GetSponsoredPropertyResponse:
+      type: object
+      required:
+        - timestamp
+        - request
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: '2024-09-18T11:11:21.125Z'
+          description: Provides the exact point in time, expressed in UTC, when the
+            response was generated.
+        sponsoredProperties:
+          type: array
+          items:
+            $ref: '#/components/schemas/GetSponsoredPropResult'
+          description: The list of sponsored properties currently present in CSL.
+        request:
+          $ref: '#/components/schemas/GetSponsoredPropertyRequest'
+          description: Contains a copy of the request body.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+          description: Lists errors, which occurred during processing the request.
+
+    GetSponsoredPropResult:
+      type: object
+      description: Information of a sponsored properties currently present in CSL.
+      allOf:
+        - type: object
+          properties:
+            destination:
+              type: string
+              description: Destination linked to a property.
+              example: DFW
+              pattern: '[a-zA-Z]{3}'
+            price:
+              type: number
+              description: The price for the sponsored property.
+              example: 200
+            isActive:
+              type: boolean
+              description: A flag to denote the sponsored property is active or not. The flag is determined based on subscription dates.
+              example: true
+        - $ref: '#/components/schemas/SponsoredProperty'
+
+    SponsoredProperty:
+      type: object
+      description: Sponsored property common object.
+      properties:
+        context:
+          $ref: '#/components/schemas/CodeContext'
+          description: The context of the hotel.
+        code:
+          type: string
+          example: '123456'
+          description: The hotel code to be sponsored.
+        subscriptionDate:
+          $ref: '#/components/schemas/SubscriptionDate'
+          description: The subscription dates for the sponsored property.
+        campaignRadius:
+          $ref: '#/components/schemas/CampaignRadius'
+          description: The campaign radius for the sponsored property.
+    CampaignRadius:
+      type: object
+      properties:
+        quantity:
+          type: number
+          description: The campaign radius for the sponsored property.
+          example: 80
+        unitName:
+          $ref: '#/components/schemas/Uom'
+          description: The campaign radius of the sponsored property.
+    SubscriptionDate:
+      type: object
+      properties:
+        subscriptionStartDate:
+          type: string
+          example: '2024-12-01'
+          description: The subscription start date for sponsored property.
+        subscriptionEndDate:
+          type: string
+          example: '2024-12-31'
+          description: The subscription end date for sponsored property.
+
+    Error:
+      type: object
+      required:
+        - category
+        - type
+      properties:
+        category:
+          type: string
+          example: 'BAD_REQUEST'
+          description: A high-level grouping of errors indicating what kind of
+            (client-side or server-side) problem occurred.
+        type:
+          type: string
+          example: 'INVALID_VALUE'
+          description: An application-specific error type, or one from the list of typical
+            Sabre API errors.
+        description:
+          type: string
+          example: 'The provided program code is invalid. No update was done. Please
+            provide a valid program code and repeat the request.'
+          description: A human-readable description of what went wrong with enough
+            information that a software developer can use to debug the problem.
+        fieldName:
+          type: string
+          example: 'code'
+          description: Specific additional information to help debug the error. For
+            example the name of property missing from a request payload.
+        fieldPath:
+          type: string
+          example: 'request'
+          description: Specific additional information to help debug the error. For
+            example the name of property missing from a request payload.
+        fieldValue:
+          type: string
+          example: 'ABC123'
+          description: Contains the source of the error.
+
+    CodeContext:
+      type: string
+      default: 'Sabre'
+    Uom:
+      type: string
+      default: 'MI'
+  securitySchemes:
+    oauth2_authentication:
+      type: oauth2
+      x-base64-encode-client-credentials: true
+      flows:
+        clientCredentials:
+          tokenUrl: 'https://api.cert.platform.sabre.com/v3/auth/token'
+          scopes:
+            {}

@@ -1,0 +1,54 @@
+Prompt:
+Get first 30 sponsored properties with Context Sabre
+Request:
+{
+  "context": "Sabre",
+  "startIndex": 0,
+  "endIndex": 30
+}
+
+Prompt:
+Create a sponsored property with Global code 100072188 with subscription starting from 1st April 2026 and ending on 30th April 2026 having 80 Miles of campaign radius
+Request:
+{
+  "sponsoredProperties": [
+    {
+      "context": "Global",
+      "code": "100072188",
+      "subscriptionDate": {
+        "subscriptionStartDate": "2026-04-01",
+        "subscriptionEndDate": "2026-04-30"
+      },
+      "campaignRadius": {
+        "quantity": 80,
+        "unitName": "MI"
+      }
+    }
+  ]
+}
+
+Prompt:
+Update the sponsored property with code 100072188 for a global campaign. 
+With the current subscription running from April 1, 2026, to April 30, 2026, update the subscription period from April 1 to April 2, 2026. 
+The campaign should target a radius of 80 miles.
+Request:
+{
+  "sponsoredProperties": [
+    {
+      "updatedSubscriptionDate": {
+        "subscriptionStartDate": "2026-04-01",
+        "subscriptionEndDate": "2026-04-02"
+      },
+      "context": "Global",
+      "code": "100072188",
+      "subscriptionDate": {
+        "subscriptionStartDate": "2026-04-01",
+        "subscriptionEndDate": "2026-04-30"
+      },
+      "campaignRadius": {
+        "quantity": 80,
+        "unitName": "MI"
+      }
+    }
+  ]
+}
